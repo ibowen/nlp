@@ -16,7 +16,7 @@ import sys
 import getopt
 import os
 import math
-from collections import defaultdict
+import collections
 
 class NaiveBayes:
   class TrainSplit:
@@ -40,11 +40,11 @@ class NaiveBayes:
     self.FILTER_STOP_WORDS = False
     self.stopList = set(self.readFile('../data/english.stop'))
     self.numFolds = 10
-    self.doc_count_byklass = {'pos': 0, 'neg': 0}
+    self.doc_count_byklass = collections.defaultdict(lambda: 0)
     self.totaldoc_count = 0
     
-    self.word_count_byklass = {'pos': defaultdict(int), 'neg': defaultdict(int)}
-    self.totalword_count_byklass = {'pos': 0, 'neg': 0}
+    self.word_count_byklass = collections.defaultdict(lambda: 0)
+    self.totalword_count_byklass = collections.defaultdict(lambda: 0)
     
     self.word_type_count = set()
     
@@ -64,7 +64,7 @@ class NaiveBayes:
     	denominitor = self.totalword_count_byklass[klass] + len(self.word_type_count)
     	prob[klass] += math.log(prior)
     	for word in words:
-    		prob[klass] += math.log(self.word_count_byklass[klass][word] + 1) - math.log(denominitor)
+    		prob[klass] += math.log(self.word_count_byklass[(klass, word)] + 1) - math.log(denominitor)
 	if (prob['pos'] >= prob['neg']):
 		return 'pos'  
 	else:
@@ -86,7 +86,7 @@ class NaiveBayes:
     
     for word in words:
 		# prepare for likelyhood
-		self.word_count_byklass[klass][word] += 1
+		self.word_count_byklass[(klass, word)] += 1
 		self.totalword_count_byklass[klass] += 1
 		# prepare for add-1 smoothing
 		self.word_type_count.add(word)
